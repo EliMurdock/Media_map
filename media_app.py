@@ -18,3 +18,4 @@ def get_wiki_image(search_term):
         return 0
 
 wiki_image = get_wiki_image('Paris City')
+print(wiki_image)

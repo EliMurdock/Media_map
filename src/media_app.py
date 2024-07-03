@@ -11,6 +11,9 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from scipy.sparse import csr_matrix
 
+
+
+
 WIKI_REQUEST = 'http://en.wikipedia.org/w/api.php?action=query&prop=pageimages&format=json&piprop=original&titles='
 
 def get_wiki_image(search_term):
@@ -49,13 +52,13 @@ def display_image_from_url(url):
    label.pack()
    root.mainloop()
 
-def main():
-   chunksize = 1000  # Adjust this according to your system's memory
+def get_reccomendations(movie_name):
+   chunksize = 1000  # Adjust this according to your system's memory, 1000 for lite memory
    combined_features_list = []
    titles_list = []
 
-   # Read CSV in chunks
-   for chunk in pd.read_csv('movies.csv', chunksize=chunksize):
+   # Read CSV in chunks, combines genres, overview, prod comp, and rel date
+   for chunk in pd.read_csv('data/movies.csv', chunksize=chunksize):
       chunk = chunk.fillna('')
       combined_features = chunk['genres'] + ' ' + chunk['overview'] + ' ' + chunk['production_companies'] + ' ' + chunk['release_date']
       combined_features_list.extend(combined_features)
@@ -65,8 +68,7 @@ def main():
    feature_vectors = vectorizer.fit_transform(combined_features_list)
    feature_vectors = csr_matrix(feature_vectors)  # Convert to sparse matrix
 
-   # movie_name = input("Enter your favorite movie: ")
-   movie_name = "Robin Hood"
+   
 
    close_match = difflib.get_close_matches(movie_name, titles_list, n=1)
    if not close_match:
@@ -88,5 +90,6 @@ def main():
    wiki_image = get_wiki_image('Fox')
    display_image_from_url(wiki_image)
 
+
 if __name__ == "__main__":
-   main()
+   get_reccomendations("robin hood")

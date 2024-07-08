@@ -65,7 +65,7 @@ class MovieRecommender:
 
         return movie_df, similarity_chunks
 
-    def recommend_movies_with_details(self, movie_name):
+    def recommend_movies(self, movie_name):
         index = self.movie_df[self.movie_df['title'] == movie_name].index[0]
         chunk_size = len(self.movie_df) // len(self.similarity_chunks)
         chunk_index = index // chunk_size
@@ -75,11 +75,11 @@ class MovieRecommender:
         distances = sorted(list(enumerate(chunk_similarity[local_index])), reverse=True, key=lambda x: x[1])
 
         movie_indexes = [i[0] + chunk_index * chunk_size for i in distances[0:11]]
-        recommended_movies = self.lookup_movies_by_index(movie_indexes)
+        recommended_movies = self.lookup_movies(movie_indexes)
 
         return recommended_movies
 
-    def lookup_movies_by_index(self, movie_indexes):
+    def lookup_movies(self, movie_indexes):
         movie_data_file = 'data/movie_data.csv'
         movie_data = pd.read_csv(movie_data_file)
 
@@ -99,7 +99,7 @@ class MovieRecommender:
 # Testing the class
 def main():
     recommender = MovieRecommender()
-    recommended_movies = recommender.recommend_movies_with_details('Alien')
+    recommended_movies = recommender.recommend_movies('Alien')
 
     print("Recommended Movies For 'Alien':")
     for rec_idx, movie in enumerate(recommended_movies):

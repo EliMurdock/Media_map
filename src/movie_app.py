@@ -1,13 +1,14 @@
 import customtkinter
 from PIL import Image
 from io import BytesIO
+from movie_recc import MovieRecommender
 
 class MovieGUI:
     def __init__(self, root):
         self.root = root
         customtkinter.set_appearance_mode("dark")
         customtkinter.set_default_color_theme("blue")
-
+        self.recommender = MovieRecommender()
         self.create_widgets()
 
     def create_widgets(self):
@@ -88,40 +89,17 @@ class MovieGUI:
     def on_poster_click(self, index):
         print(f"Poster {index} clicked")
 
-    def search_for_movie(self):
-        # Dummy data for demonstration; replace with actual movie data fetching
-        movie_data = {
-            "poster": "data/mp.png",  # Local path or URL to movie poster image
-            "title": "Example Movie",
-            "tagline": "This is an example tagline.",
-            "release_date": "2022-01-01",
-            "vote_average": 8.5,
-            "popularity": 500,
-            "runtime": 120,
-            "genres": "Action, Adventure",
-            "overview": "This is an example overview of the movie.",
-            "production_companies": "Example Production Company",
-            "languages": "English",
-            "keywords": "example, movie"
-        }
+    def search_for_movie(self, movie_name):
+        # get movie data from the movie reccomender
+        movie_list = self.recommender.recommend_movies(movie_name)
+        movie_data = movie_list[0]
+        recommended_data = movie_list[1:]
 
         # Update main movie details
         self.update_movie_details(movie_data)
 
-        # Dummy recommended movies data; replace with actual recommendations fetching
-        recommended_movies = [
-            {
-                "poster": "data/mp.png",  # Local path or URL to recommended movie poster
-                "title": f"Recommended Movie {i+1}",
-                "genres": "Genre1, Genre2",
-                "vote_average": 7.5 + i * 0.1,
-                "overview": "This is an example overview of the recommended movie."
-            }
-            for i in range(10)
-        ]
-
         # Update recommended movies
-        self.update_recommended_movies(recommended_movies)
+        self.update_recommended_movies(recommended_data)
 
     def update_movie_details(self, movie_data):
         # Load movie poster
@@ -157,5 +135,5 @@ class MovieGUI:
 # Initialize the main window
 root = customtkinter.CTk()
 app = MovieGUI(root)
-app.search_for_movie()
+app.search_for_movie("Robin Hood")
 root.mainloop()

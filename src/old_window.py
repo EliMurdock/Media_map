@@ -1,5 +1,5 @@
 import customtkinter
-from tkinter import PhotoImage
+from PIL import Image
 
 def search_for_movie():
     pass
@@ -23,17 +23,18 @@ def create_main_window():
     button = customtkinter.CTkButton(master=frame, text="search")
     button.pack(pady=12, padx=10)
 
-
-    movie_placeholder = PhotoImage(file="data/mp.png")
+    # create placeholder image
+    m_p = Image.open("data/mp.png").resize((120, 180))
+    movie_placeholder = customtkinter.CTkImage(light_image=m_p, size=(120, 180))
 
     button = customtkinter.CTkButton(master=root,
-                                 text="Movie name",
-                                 command=search_for_movie,
-                                 width=120,
-                                 height=32,
-                                 border_width=0,
-                                 corner_radius=8,
-                                 image=movie_placeholder)
+        text='',
+        command=search_for_movie,
+        width=120,
+        height=180,
+        border_width=0,
+        corner_radius=0,
+        image=movie_placeholder)
     button.place(relx=0.5, rely=0.5, anchor=customtkinter.CENTER)
 
     root.mainloop()

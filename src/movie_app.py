@@ -1,14 +1,16 @@
 import customtkinter
 from PIL import Image
+import requests
 from io import BytesIO
 from movie_recc import MovieRecommender
+
+
 
 class MovieGUI:
     def __init__(self, root):
         self.root = root
         customtkinter.set_appearance_mode("dark")
         customtkinter.set_default_color_theme("blue")
-        self.recommender = MovieRecommender()
         self.create_widgets()
 
     def create_widgets(self):
@@ -19,8 +21,9 @@ class MovieGUI:
         self.search_button.grid(row=0, column=1, padx=10, pady=10)
 
         # Main movie details frame
-        self.movie_details_frame = customtkinter.CTkFrame(master=self.root)
+        self.movie_details_frame = customtkinter.CTkFrame(master=self.root, height=800, width=400)
         self.movie_details_frame.grid(row=1, column=0, padx=10, pady=10, sticky="n")
+        self.movie_details_frame.grid_propagate(False)
 
         self.poster_label = customtkinter.CTkLabel(master=self.movie_details_frame)
         self.poster_label.grid(row=0, column=0, padx=10, pady=10)
@@ -89,9 +92,20 @@ class MovieGUI:
     def on_poster_click(self, index):
         print(f"Poster {index} clicked")
 
+    def get_poster(self, poster_path):
+        poster_url = f"https://image.tmdb.org/t/p/w200{poster_path}"
+        response = requests.get(poster_url)
+        response.raise_for_status()  # Check for request errors
+        
+        # Open the image using PIL
+        image_content = BytesIO(response.content)
+        return image_content
+
+
     def search_for_movie(self, movie_name):
         # get movie data from the movie reccomender
-        movie_list = self.recommender.recommend_movies(movie_name)
+        recommender = MovieRecommender()
+        movie_list = recommender.recommend_movies(movie_name)
         movie_data = movie_list[0]
         recommended_data = movie_list[1:]
 
@@ -103,7 +117,7 @@ class MovieGUI:
 
     def update_movie_details(self, movie_data):
         # Load movie poster
-        poster_image = Image.open(movie_data["poster"]).resize((240, 360))
+        poster_image = Image.open(self.get_poster(movie_data["poster_path"])).resize((240, 360))
         poster = customtkinter.CTkImage(light_image=poster_image, size=(240, 360))
         self.poster_label.configure(image=poster)
         self.poster_label.image = poster
@@ -118,12 +132,12 @@ class MovieGUI:
         self.genres_label.configure(text=f"Genres: {movie_data['genres']}")
         self.overview_label.configure(text=f"Overview: {movie_data['overview']}")
         self.production_companies_label.configure(text=f"Production Companies: {movie_data['production_companies']}")
-        self.languages_label.configure(text=f"Languages: {movie_data['languages']}")
+        self.languages_label.configure(text=f"Languages: {movie_data['spoken_languages']}")
         self.keywords_label.configure(text=f"Keywords: {movie_data['keywords']}")
 
     def update_recommended_movies(self, recommended_movies):
         for i, movie in enumerate(recommended_movies):
-            poster_image = Image.open(movie["poster"]).resize((120, 180))
+            poster_image = Image.open(self.get_poster(movie["poster_path"])).resize((120, 180))
             poster = customtkinter.CTkImage(light_image=poster_image, size=(120, 180))
             self.recommended_frames[i]["poster"].configure(image=poster)
             self.recommended_frames[i]["poster"].image = poster

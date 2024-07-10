@@ -14,18 +14,24 @@ class MovieGUI:
         self.create_widgets()
 
     def create_widgets(self):
+        self.search_bar_frame = customtkinter.CTkFrame(master=self.root, height=50, width=800)
+        self.search_bar_frame.grid(row=0, column=0, columnspan=2, padx=10, pady=5, sticky="n")
+
         # Search bar and button
-        self.search_bar = customtkinter.CTkEntry(master=self.root, width=400, placeholder_text="Search for a movie")
-        self.search_button = customtkinter.CTkButton(master=self.root, text="Search", command=self.search_for_movie)
-        self.search_bar.grid(row=0, column=0, padx=10, pady=10)
-        self.search_button.grid(row=0, column=1, padx=10, pady=10)
+        self.search_bar = customtkinter.CTkEntry(master=self.search_bar_frame, width=700, placeholder_text="Search for a movie", justify="left")
+        self.search_button = customtkinter.CTkButton(master=self.search_bar_frame, text="Search", command=lambda: self.search_for_movie(self.search_bar.get()))
+        self.search_bar.grid(row=0, column=0, padx=10, pady=5)
+        self.search_button.grid(row=0, column=1, padx=10, pady=5)
 
         # Main movie details frame
-        self.movie_details_frame = customtkinter.CTkFrame(master=self.root, height=800, width=400)
+        self.movie_details_frame = customtkinter.CTkFrame(master=self.root, height=650, width=400)
         self.movie_details_frame.grid(row=1, column=0, padx=10, pady=10, sticky="n")
         self.movie_details_frame.grid_propagate(False)
 
-        self.poster_label = customtkinter.CTkLabel(master=self.movie_details_frame)
+
+        mv_img = Image.open("data/mp.png").resize((240, 360))
+        mv_img_tk = customtkinter.CTkImage(mv_img, size=(240, 360))
+        self.poster_label = customtkinter.CTkLabel(master=self.movie_details_frame, text="", image=mv_img_tk)
         self.poster_label.grid(row=0, column=0, padx=10, pady=10)
 
         self.details_text_frame = customtkinter.CTkFrame(master=self.movie_details_frame)
@@ -61,14 +67,15 @@ class MovieGUI:
         self.recommended_movies_frame.grid(row=1, column=1, padx=10, pady=10, sticky="n")
 
         self.recommended_frames = []
+        img = Image.open("data/mp.png").resize((120, 180))
+        img_tk = customtkinter.CTkImage(img, size=(120, 180))
         for i in range(10):
             frame = customtkinter.CTkFrame(master=self.recommended_movies_frame, height=320, width=180)
             frame.grid(row=i % 2, column=i // 2, padx=5, pady=5, sticky="n")
             frame.grid_propagate(False)
 
-            img = Image.open("data/mp.png").resize((120, 180))
-            img_tk = customtkinter.CTkImage(img, size=(120, 180))
-            poster_button = customtkinter.CTkButton(master=frame, image=img_tk, text="", width=120, height=180, corner_radius=0, command=lambda i=i: self.on_poster_click(i))
+
+            poster_button = customtkinter.CTkButton(master=frame, image=img_tk, text="", width=120, height=180, corner_radius=0, command=lambda: self.on_poster_click())
             poster_button.grid(row=0, column=0, padx=25, pady=5)
 
             title_label = customtkinter.CTkLabel(master=frame, text="Title: ", width=120)
@@ -89,8 +96,8 @@ class MovieGUI:
                 "overview": overview_label
             })
 
-    def on_poster_click(self, index):
-        print(f"Poster {index} clicked")
+    def on_poster_click(self):
+        print(f"Empty poster clicked!")
 
     def get_poster(self, poster_path):
         poster_url = f"https://image.tmdb.org/t/p/w200{poster_path}"
@@ -139,7 +146,7 @@ class MovieGUI:
         for i, movie in enumerate(recommended_movies):
             poster_image = Image.open(self.get_poster(movie["poster_path"])).resize((120, 180))
             poster = customtkinter.CTkImage(light_image=poster_image, size=(120, 180))
-            self.recommended_frames[i]["poster"].configure(image=poster)
+            self.recommended_frames[i]["poster"].configure(image=poster,command=lambda m=movie: self.search_for_movie(m['title']))
             self.recommended_frames[i]["poster"].image = poster
             self.recommended_frames[i]["title"].configure(text=f"Title: {movie['title']}")
             self.recommended_frames[i]["genres"].configure(text=f"Genres: {movie['genres']}")
@@ -149,5 +156,5 @@ class MovieGUI:
 # Initialize the main window
 root = customtkinter.CTk()
 app = MovieGUI(root)
-app.search_for_movie("Robin Hood")
+# app.search_for_movie("Robin Hood")
 root.mainloop()

@@ -24,7 +24,7 @@ class MovieGUI:
         self.search_button.grid(row=0, column=1, padx=10, pady=5)
 
         # Main movie details frame
-        self.movie_details_frame = customtkinter.CTkFrame(master=self.root, height=650, width=400)
+        self.movie_details_frame = customtkinter.CTkFrame(master=self.root, height=650, width=450)
         self.movie_details_frame.grid(row=1, column=0, padx=10, pady=10, sticky="n")
         self.movie_details_frame.grid_propagate(False)
 
@@ -53,13 +53,13 @@ class MovieGUI:
         self.genres_label.grid(row=6, column=0, sticky="w")
 
         # Overview and other labels below the poster
-        self.overview_label = customtkinter.CTkLabel(master=self.movie_details_frame, text="Overview: ")
+        self.overview_label = customtkinter.CTkLabel(master=self.movie_details_frame, text="Overview: ", wraplength=400)
         self.overview_label.grid(row=1, column=0, columnspan=2, sticky="w", padx=10, pady=10)
-        self.production_companies_label = customtkinter.CTkLabel(master=self.movie_details_frame, text="Production Companies: ")
+        self.production_companies_label = customtkinter.CTkLabel(master=self.movie_details_frame, text="Production Companies: ", wraplength=400)
         self.production_companies_label.grid(row=2, column=0, columnspan=2, sticky="w", padx=10, pady=10)
         self.languages_label = customtkinter.CTkLabel(master=self.movie_details_frame, text="Languages: ")
         self.languages_label.grid(row=3, column=0, columnspan=2, sticky="w", padx=10, pady=10)
-        self.keywords_label = customtkinter.CTkLabel(master=self.movie_details_frame, text="Keywords: ")
+        self.keywords_label = customtkinter.CTkLabel(master=self.movie_details_frame, text="Keywords: ", wraplength=400)
         self.keywords_label.grid(row=4, column=0, columnspan=2, sticky="w", padx=10, pady=10)
 
         # Recommended movies frames
@@ -78,13 +78,13 @@ class MovieGUI:
             poster_button = customtkinter.CTkButton(master=frame, image=img_tk, text="", width=120, height=180, corner_radius=0, command=lambda: self.on_poster_click())
             poster_button.grid(row=0, column=0, padx=25, pady=5)
 
-            title_label = customtkinter.CTkLabel(master=frame, text="Title: ", width=120)
+            title_label = customtkinter.CTkLabel(master=frame, text="Title: ", width=120, wraplength=180)
             title_label.grid(row=1, column=0, sticky="w")
-            genres_label = customtkinter.CTkLabel(master=frame, text="Genres: ", width=120)
+            genres_label = customtkinter.CTkLabel(master=frame, text="Genres: ", width=120, wraplength=180)
             genres_label.grid(row=2, column=0, sticky="w")
-            vote_average_label = customtkinter.CTkLabel(master=frame, text="Vote Average: ", width=120)
+            vote_average_label = customtkinter.CTkLabel(master=frame, text="Rating: ", width=120)
             vote_average_label.grid(row=3, column=0, sticky="w")
-            overview_label = customtkinter.CTkLabel(master=frame, text="Overview: ", width=100, wraplength=120)
+            overview_label = customtkinter.CTkLabel(master=frame, text="Overview: ", width=100, wraplength=180)
             overview_label.grid(row=4, column=0, sticky="w")
 
             self.recommended_frames.append({
@@ -133,7 +133,7 @@ class MovieGUI:
         self.title_label.configure(text=f"Title: {movie_data['title']}")
         self.tagline_label.configure(text=f"Tagline: {movie_data['tagline']}")
         self.release_date_label.configure(text=f"Release Date: {movie_data['release_date']}")
-        self.vote_average_label.configure(text=f"Vote Average: {movie_data['vote_average']}")
+        self.vote_average_label.configure(text=f"Rating: {movie_data['vote_average']}")
         self.popularity_label.configure(text=f"Popularity: {movie_data['popularity']}")
         self.runtime_label.configure(text=f"Runtime: {movie_data['runtime']} min")
         self.genres_label.configure(text=f"Genres: {movie_data['genres']}")
@@ -150,7 +150,7 @@ class MovieGUI:
             self.recommended_frames[i]["poster"].image = poster
             self.recommended_frames[i]["title"].configure(text=f"Title: {movie['title']}")
             self.recommended_frames[i]["genres"].configure(text=f"Genres: {movie['genres']}")
-            self.recommended_frames[i]["vote_average"].configure(text=f"Vote Average: {movie['vote_average']}")
+            self.recommended_frames[i]["vote_average"].configure(text=f"Rating: {movie['vote_average']}")
             self.recommended_frames[i]["overview"].configure(text=f"Overview: {movie['overview']}")
 
 # Initialize the main window

@@ -153,8 +153,12 @@ class MovieGUI:
             self.recommended_frames[i]["vote_average"].configure(text=f"Rating: {movie['vote_average']}")
             self.recommended_frames[i]["overview"].configure(text=f"Overview: {movie['overview']}")
 
-# Initialize the main window
-root = customtkinter.CTk()
-app = MovieGUI(root)
-# app.search_for_movie("Robin Hood")
-root.mainloop()
+def createGUI():
+    # Initialize the main window
+    root = customtkinter.CTk()
+    app = MovieGUI(root)
+    # app.search_for_movie("Robin Hood")
+    root.mainloop()
+
+if __name__ == "__main__":
+    createGUI() 

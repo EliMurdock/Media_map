@@ -1,65 +1,62 @@
 import customtkinter
-import sqlite3
-
-#for creating db
-import hashlib
 import socket
+import time
 
+class LoginGUI(customtkinter.CTkToplevel):
+    def __init__(self, movie_app):
+        super().__init__()
+        self.movie_app = movie_app
+        self.title("Media Map Login")
+        customtkinter.set_appearance_mode("dark")
+        customtkinter.set_default_color_theme("blue")
+        self.create_login_window()
 
-def login():
-    print("Test")
+    def create_login_window(self):
+        self.geometry("500x350")
 
+        self.frame = customtkinter.CTkFrame(master=self)
+        self.frame.pack(pady=20, padx=60, fill="both", expand=True)
 
-def create_sql_db():
-    conn = sqlite3.connect("data/userdata.db")
-    cur = conn.cursor()
+        self.label = customtkinter.CTkLabel(master=self.frame, text="Login", font=("Roberto", 24))
+        self.label.pack(pady=(40,0), padx=10)
 
-    cur.execute("""
-    CREATE TABLE IF NOT EXISTS userdata (
-        id INTEGER PRIMARY KEY,
-        username VARCHAR(255) NOT NULL,
-        password VARCHAR(255) NOT NULL)
-    """)
+        self.incorrect = customtkinter.CTkLabel(master=self.frame, text="",text_color='red', font=("Roberto", 12))
+        self.incorrect.pack(pady=5,padx=5)
 
-    username1, password1 = "deliveryman", hashlib.sha256("package1!".encode()).hexdigest()
-    username2, password2 = "critic", hashlib.sha256("movie".encode()).hexdigest()
+        self.entry1 = customtkinter.CTkEntry(master=self.frame, placeholder_text="Username")
+        self.entry1.pack(pady=12, padx=10)
 
-    cur.execute("INSERT INTO userdata (username, password) VALUES (?, ?)", (username1, password1))
-    cur.execute("INSERT INTO userdata (username, password) VALUES (?, ?)", (username2, password2))
+        self.entry2 = customtkinter.CTkEntry(master=self.frame, placeholder_text="Password", show="*")
+        self.entry2.pack(pady=12, padx=10)
 
-    conn.commit()
+        self.button = customtkinter.CTkButton(master=self.frame, text="Login", command=self.login)
+        self.button.pack(pady=12, padx=10)
 
-    
-def create_login_window():
-    customtkinter.set_appearance_mode("dark")
-    customtkinter.set_default_color_theme("blue")
+    def login(self):
+        client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        client.connect(("localhost", 9999))
 
-    root = customtkinter.CTk()
-    root.geometry("500x350")
+        username = self.entry1.get()
+        password = self.entry2.get()
+        
+        client.send(username.encode())
+        time.sleep(1)
+        client.send(password.encode())
 
-    frame = customtkinter.CTkFrame(master=root)
-    frame.pack(pady=20, padx=60, fill="both", expand=True)
+        response = client.recv(1024).decode()
+        print(response)
+        client.close()
 
-    label = customtkinter.CTkLabel(master=frame, text="Login", font=("Roberto", 24))
-    label.pack(pady=20, padx=10)
+        if response == "Login successful":
+            self.close_login()
+        else:
+            self.incorrect.configure(text='Incorrect username/password')
 
-    entry1 = customtkinter.CTkEntry(master=frame, placeholder_text="Username")
-    entry1.pack(pady=12, padx=10)
-
-    entry2 = customtkinter.CTkEntry(master=frame, placeholder_text="Password", show="*")
-    entry2.pack(pady=12, padx=10)
-
-    button = customtkinter.CTkButton(master=frame, text="Login", command=login)
-    button.pack(pady=12, padx=10)
-
-    root.mainloop()
-
-
+    def close_login(self):
+        self.destroy()
+        self.movie_app.deiconify()
 
 if __name__ == "__main__":
-    create_login_window()
-
-
-
-
-
+    root = customtkinter.CTk()
+    log = LoginGUI(root)
+    root.mainloop()

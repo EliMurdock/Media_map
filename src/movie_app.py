@@ -3,18 +3,24 @@ from PIL import Image
 import requests
 from io import BytesIO
 from movie_recc import MovieRecommender
+from login import LoginGUI
+from login_server import start_server
+import threading
+from database import get_last_search, update_last_search
 
 
 
-class MovieGUI:
-    def __init__(self, root):
-        self.root = root
+class MovieGUI(customtkinter.CTk):
+    def __init__(self):
+        super().__init__()
         customtkinter.set_appearance_mode("dark")
         customtkinter.set_default_color_theme("blue")
+        self.loginGUI = LoginGUI(self)
+        self.withdraw()
         self.create_widgets()
 
     def create_widgets(self):
-        self.search_bar_frame = customtkinter.CTkFrame(master=self.root, height=50, width=800)
+        self.search_bar_frame = customtkinter.CTkFrame(master=self, height=50, width=800)
         self.search_bar_frame.grid(row=0, column=0, columnspan=2, padx=10, pady=5, sticky="n")
 
         # Search bar and button
@@ -24,7 +30,7 @@ class MovieGUI:
         self.search_button.grid(row=0, column=1, padx=10, pady=5)
 
         # Main movie details frame
-        self.movie_details_frame = customtkinter.CTkFrame(master=self.root, height=650, width=450)
+        self.movie_details_frame = customtkinter.CTkFrame(master=self, height=650, width=450)
         self.movie_details_frame.grid(row=1, column=0, padx=10, pady=10, sticky="n")
         self.movie_details_frame.grid_propagate(False)
 
@@ -63,7 +69,7 @@ class MovieGUI:
         self.keywords_label.grid(row=4, column=0, columnspan=2, sticky="w", padx=10, pady=10)
 
         # Recommended movies frames
-        self.recommended_movies_frame = customtkinter.CTkFrame(master=self.root)
+        self.recommended_movies_frame = customtkinter.CTkFrame(master=self)
         self.recommended_movies_frame.grid(row=1, column=1, padx=10, pady=10, sticky="n")
 
         self.recommended_frames = []
@@ -113,6 +119,11 @@ class MovieGUI:
         # get movie data from the movie reccomender
         recommender = MovieRecommender()
         movie_list = recommender.recommend_movies(movie_name)
+        #saves the search in the database
+        update_last_search(movie_list)
+
+
+    def update_movies(self, movie_list):
         movie_data = movie_list[0]
         recommended_data = movie_list[1:]
 
@@ -121,6 +132,8 @@ class MovieGUI:
 
         # Update recommended movies
         self.update_recommended_movies(recommended_data)
+
+
 
     def update_movie_details(self, movie_data):
         # Load movie poster
@@ -153,12 +166,10 @@ class MovieGUI:
             self.recommended_frames[i]["vote_average"].configure(text=f"Rating: {movie['vote_average']}")
             self.recommended_frames[i]["overview"].configure(text=f"Overview: {movie['overview']}")
 
-def createGUI():
-    # Initialize the main window
-    root = customtkinter.CTk()
-    app = MovieGUI(root)
-    # app.search_for_movie("Robin Hood")
-    root.mainloop()
+
 
 if __name__ == "__main__":
-    createGUI() 
+    threading.Thread(target=start_server, args=()).start()
+    app = MovieGUI()
+    app.mainloop()
+

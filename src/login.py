@@ -2,6 +2,7 @@ import customtkinter
 import socket
 import time
 from database import add_user
+from login_server import Login_Server
 
 class LoginGUI(customtkinter.CTkToplevel):
     def __init__(self, movie_app):
@@ -10,6 +11,8 @@ class LoginGUI(customtkinter.CTkToplevel):
         self.title("Media Map Login")
         customtkinter.set_appearance_mode("dark")
         customtkinter.set_default_color_theme("blue")
+        self.protocol("WM_DELETE_WINDOW", self.on_login_close)
+        self.login_server = Login_Server()
         self.create_login_window()
 
     def create_login_window(self):
@@ -59,14 +62,20 @@ class LoginGUI(customtkinter.CTkToplevel):
         client.close()
 
         if response == "Login successful":
-            self.close_login(username)
+            self.successful_login(username)
         else:
             self.incorrect.configure(text='Incorrect username/password')
 
-    def close_login(self, username):
+    def on_login_close(self):
+        self.movie_app.destroy()
+        self.login_server.stop_server()
+
+
+    def successful_login(self, username):
         self.destroy()
         self.movie_app.set_user(username)
         self.movie_app.deiconify()
+        self.login_server.stop_server()
 
 if __name__ == "__main__":
     root = customtkinter.CTk()

@@ -1,17 +1,23 @@
+# package imports
 import customtkinter
 from PIL import Image
 import requests
 from io import BytesIO
+import threading
+
+#file project imports
 from movie_recc import MovieRecommender
 from login import LoginGUI
-from login_server import start_server
-import threading
+from login_server import Login_Server
 from database import get_last_search, update_last_search
 
 
 
+# main application class, runs everything for the window
 class MovieGUI(customtkinter.CTk):
     def __init__(self):
+        #sets appearance and basic parameters for the window
+        #Initializes login, starts the application hidden
         super().__init__()
         customtkinter.set_appearance_mode("dark")
         customtkinter.set_default_color_theme("blue")
@@ -20,6 +26,7 @@ class MovieGUI(customtkinter.CTk):
         self.withdraw()
         self.create_widgets()
 
+    # sets the user on login and retrieves data for their last saved search
     def set_user(self, username):
         self.username = username
         self.username_label.configure(text=f"User: {username}")
@@ -27,35 +34,39 @@ class MovieGUI(customtkinter.CTk):
         if last_search != None:
             self.update_movies(last_search)
 
+    # main function for creating application, creates UI within GUI
     def create_widgets(self):
         #search bar frame
         self.search_bar_frame = customtkinter.CTkFrame(master=self, height=50, width=800)
         self.search_bar_frame.grid(row=0, column=0, columnspan=2, padx=10, pady=5, sticky="n")
 
-        # Search bar and button
+        # search elements (bar and search button)
         self.search_bar = customtkinter.CTkEntry(master=self.search_bar_frame, width=700, placeholder_text="Search for a movie", justify="left")
         self.search_button = customtkinter.CTkButton(master=self.search_bar_frame, text="Search", command=lambda: self.search_for_movie(self.search_bar.get()))
         self.search_bar.grid(row=0, column=0, padx=10, pady=5)
         self.search_button.grid(row=0, column=1, padx=10, pady=5)
 
-        #username box
+        # username, hides in corner of window
         self.username_label = customtkinter.CTkLabel(master=self, text_color='blue', text="User:", justify='right', font=("Roberto", 18))
         self.username_label.grid(row=0, column=1, padx=10, pady=5, sticky="ne")
 
-        # Main movie details frame
+        # main movie details frame
         self.movie_details_frame = customtkinter.CTkFrame(master=self, height=650, width=450)
         self.movie_details_frame.grid(row=1, column=0, padx=10, pady=10, sticky="n")
         self.movie_details_frame.grid_propagate(False)
 
-
+        # main movie image, creates placeholder image
         mv_img = Image.open("data/mp.png").resize((240, 360))
         mv_img_tk = customtkinter.CTkImage(mv_img, size=(240, 360))
         self.poster_label = customtkinter.CTkLabel(master=self.movie_details_frame, text="", image=mv_img_tk)
         self.poster_label.grid(row=0, column=0, padx=10, pady=10)
 
+        # frame to the right of the main movie poster
+        # holds most important details
         self.details_text_frame = customtkinter.CTkFrame(master=self.movie_details_frame)
         self.details_text_frame.grid(row=0, column=1, padx=10, pady=10, sticky="n")
 
+        # 
         self.title_label = customtkinter.CTkLabel(master=self.details_text_frame, text="Title: ")
         self.title_label.grid(row=0, column=0, sticky="w")
         self.tagline_label = customtkinter.CTkLabel(master=self.details_text_frame, text="Tagline: ")
@@ -148,7 +159,6 @@ class MovieGUI(customtkinter.CTk):
         self.update_recommended_movies(recommended_data)
 
 
-
     def update_movie_details(self, movie_data):
         # Load movie poster
         poster_image = Image.open(self.get_poster(movie_data["poster_path"])).resize((240, 360))
@@ -169,6 +179,7 @@ class MovieGUI(customtkinter.CTk):
         self.languages_label.configure(text=f"Languages: {movie_data['spoken_languages']}")
         self.keywords_label.configure(text=f"Keywords: {movie_data['keywords']}")
 
+
     def update_recommended_movies(self, recommended_movies):
         for i, movie in enumerate(recommended_movies):
             poster_image = Image.open(self.get_poster(movie["poster_path"])).resize((120, 180))
@@ -182,9 +193,9 @@ class MovieGUI(customtkinter.CTk):
 
 
 
+
+
 if __name__ == "__main__":
-    login_server = threading.Thread(target=start_server, args=())
-    login_server.start()
     app = MovieGUI()
     app.mainloop()
 

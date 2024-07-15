@@ -1,5 +1,7 @@
 import sqlite3
 import hashlib
+import json
+import numpy as np
 
 
 
@@ -11,16 +13,20 @@ def create_sql_db():
     CREATE TABLE IF NOT EXISTS userdata (
         id INTEGER PRIMARY KEY,
         username VARCHAR(255) NOT NULL,
-        password VARCHAR(255) NOT NULL),
+        password VARCHAR(255) NOT NULL,
         last_search TEXT NOT NULL)
     """)
 
-    username1, password1 = "deliveryman", hashlib.sha256("package1!".encode()).hexdigest()
-    username2, password2 = "critic", hashlib.sha256("movie".encode()).hexdigest()
+    conn.commit()
+    conn.close()
 
-    cur.execute("INSERT INTO userdata (username, password, last_search) VALUES (?, ?, ?)", (username1, password1, ""))
-    cur.execute("INSERT INTO userdata (username, password, last search) VALUES (?, ?, ?)", (username2, password2, ""))
 
+def add_user(username, password):
+    conn = sqlite3.connect("data/userdata.db")
+    cur = conn.cursor()
+
+    password = hashlib.sha256(password.encode()).hexdigest()
+    cur.execute("INSERT INTO userdata (username, password, last_search) VALUES (?, ?, ?)", (username, password, ""))
     conn.commit()
 
 
@@ -28,8 +34,14 @@ def create_sql_db():
 def update_last_search(username, last_search):
     conn = sqlite3.connect("data/userdata.db")
     cur = conn.cursor()
+    
 
-    cur.execute("UPDATE userdata SET last_search = ? WHERE username = ?", (last_search, username))
+    # converter for bad  data types
+
+
+
+    json_data = json.dumps(last_search, default=str)
+    cur.execute("UPDATE userdata SET last_search = ? WHERE username = ?", (json_data, username))
     conn.commit()
 
     conn.close()
@@ -41,14 +53,14 @@ def get_last_search(username):
     cur = conn.cursor()
 
     cur.execute("SELECT last_search FROM userdata WHERE username = ?", (username,))
-    result = cur.fetchone()
-    result = result[0]
-    conn.close()
 
-    if result == "":
-        return None
+    json_result = cur.fetchone()
+    conn.close()
+    if json_result[0]:
+        last_search = json.loads(json_result[0])
+        return last_search
     else:
-        return result
+        return None
 
 
 if __name__ == "__main__":

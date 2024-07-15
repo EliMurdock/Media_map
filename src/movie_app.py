@@ -15,11 +15,20 @@ class MovieGUI(customtkinter.CTk):
         super().__init__()
         customtkinter.set_appearance_mode("dark")
         customtkinter.set_default_color_theme("blue")
+        self.title("Media Map")
         self.loginGUI = LoginGUI(self)
         self.withdraw()
         self.create_widgets()
 
+    def set_user(self, username):
+        self.username = username
+        self.username_label.configure(text=f"User: {username}")
+        last_search = get_last_search(username)
+        if last_search != None:
+            self.update_movies(last_search)
+
     def create_widgets(self):
+        #search bar frame
         self.search_bar_frame = customtkinter.CTkFrame(master=self, height=50, width=800)
         self.search_bar_frame.grid(row=0, column=0, columnspan=2, padx=10, pady=5, sticky="n")
 
@@ -28,6 +37,10 @@ class MovieGUI(customtkinter.CTk):
         self.search_button = customtkinter.CTkButton(master=self.search_bar_frame, text="Search", command=lambda: self.search_for_movie(self.search_bar.get()))
         self.search_bar.grid(row=0, column=0, padx=10, pady=5)
         self.search_button.grid(row=0, column=1, padx=10, pady=5)
+
+        #username box
+        self.username_label = customtkinter.CTkLabel(master=self, text_color='blue', text="User:", justify='right', font=("Roberto", 18))
+        self.username_label.grid(row=0, column=1, padx=10, pady=5, sticky="ne")
 
         # Main movie details frame
         self.movie_details_frame = customtkinter.CTkFrame(master=self, height=650, width=450)
@@ -120,7 +133,8 @@ class MovieGUI(customtkinter.CTk):
         recommender = MovieRecommender()
         movie_list = recommender.recommend_movies(movie_name)
         #saves the search in the database
-        update_last_search(movie_list)
+        update_last_search(self.username, movie_list)
+        self.update_movies(movie_list)
 
 
     def update_movies(self, movie_list):
@@ -169,7 +183,8 @@ class MovieGUI(customtkinter.CTk):
 
 
 if __name__ == "__main__":
-    threading.Thread(target=start_server, args=()).start()
+    login_server = threading.Thread(target=start_server, args=())
+    login_server.start()
     app = MovieGUI()
     app.mainloop()
 

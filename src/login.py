@@ -1,6 +1,7 @@
 import customtkinter
 import socket
 import time
+from database import add_user
 
 class LoginGUI(customtkinter.CTkToplevel):
     def __init__(self, movie_app):
@@ -18,10 +19,10 @@ class LoginGUI(customtkinter.CTkToplevel):
         self.frame.pack(pady=20, padx=60, fill="both", expand=True)
 
         self.label = customtkinter.CTkLabel(master=self.frame, text="Login", font=("Roberto", 24))
-        self.label.pack(pady=(40,0), padx=10)
+        self.label.pack(pady=(30,0), padx=10)
 
         self.incorrect = customtkinter.CTkLabel(master=self.frame, text="",text_color='red', font=("Roberto", 12))
-        self.incorrect.pack(pady=5,padx=5)
+        self.incorrect.pack(pady=0,padx=0)
 
         self.entry1 = customtkinter.CTkEntry(master=self.frame, placeholder_text="Username")
         self.entry1.pack(pady=12, padx=10)
@@ -31,6 +32,16 @@ class LoginGUI(customtkinter.CTkToplevel):
 
         self.button = customtkinter.CTkButton(master=self.frame, text="Login", command=self.login)
         self.button.pack(pady=12, padx=10)
+
+        self.button = customtkinter.CTkButton(master=self.frame, text="Add User", command=self.add_new_user)
+        self.button.pack(pady=6, padx=10)
+
+    def add_new_user(self):
+        username = self.entry1.get()
+        password = self.entry2.get()
+        print(f'User added: {username}')
+        add_user(username,password)
+
 
     def login(self):
         client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -48,12 +59,13 @@ class LoginGUI(customtkinter.CTkToplevel):
         client.close()
 
         if response == "Login successful":
-            self.close_login()
+            self.close_login(username)
         else:
             self.incorrect.configure(text='Incorrect username/password')
 
-    def close_login(self):
+    def close_login(self, username):
         self.destroy()
+        self.movie_app.set_user(username)
         self.movie_app.deiconify()
 
 if __name__ == "__main__":

@@ -17,10 +17,10 @@ def handle_connection(c):
 
     # searching the databse for username and password
     cur.execute("SELECT * FROM userdata WHERE username = ? AND password = ?", (username, password))
-    
+    result = cur.fetchone()
 
     # if found return success, else return fail
-    if cur.fetchall():
+    if result:
         c.send("Login successful".encode())
     else:
         c.send("Login failed".encode())

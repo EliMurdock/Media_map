@@ -3,12 +3,10 @@ import customtkinter
 from PIL import Image
 import requests
 from io import BytesIO
-import threading
 
 #file project imports
 from movie_recc import MovieRecommender
 from login import LoginGUI
-from login_server import Login_Server
 from database import get_last_search, update_last_search
 
 

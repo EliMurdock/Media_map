@@ -8,6 +8,7 @@ from io import BytesIO
 from movie_recc import MovieRecommender
 from login import LoginGUI
 from database import get_last_search, update_last_search
+from book_app import BookGUI
 
 
 
@@ -34,6 +35,10 @@ class MovieGUI(customtkinter.CTk):
 
     # main function for creating application, creates UI within GUI
     def create_widgets(self):
+        # book button to open book GUI
+        self.book_button = customtkinter.CTkButton(master=self, text="Book Search", command=self.open_book_search)
+        self.book_button.grid(row=0, column=0, padx=10, pady=5, sticky="nw")
+
         #search bar frame
         self.search_bar_frame = customtkinter.CTkFrame(master=self, height=50, width=800)
         self.search_bar_frame.grid(row=0, column=0, columnspan=2, padx=10, pady=5, sticky="n")
@@ -65,29 +70,29 @@ class MovieGUI(customtkinter.CTk):
         self.details_text_frame.grid(row=0, column=1, padx=10, pady=10, sticky="n")
 
         # 
-        self.title_label = customtkinter.CTkLabel(master=self.details_text_frame, text="Title: ")
+        self.title_label = customtkinter.CTkLabel(master=self.details_text_frame, text="Title: ", wraplength=175)
         self.title_label.grid(row=0, column=0, sticky="w")
-        self.tagline_label = customtkinter.CTkLabel(master=self.details_text_frame, text="Tagline: ")
+        self.tagline_label = customtkinter.CTkLabel(master=self.details_text_frame, text="Tagline: ", wraplength=175)
         self.tagline_label.grid(row=1, column=0, sticky="w")
-        self.release_date_label = customtkinter.CTkLabel(master=self.details_text_frame, text="Release Date: ")
+        self.release_date_label = customtkinter.CTkLabel(master=self.details_text_frame, text="Release Date: ", wraplength=175)
         self.release_date_label.grid(row=2, column=0, sticky="w")
-        self.vote_average_label = customtkinter.CTkLabel(master=self.details_text_frame, text="Vote Average: ")
+        self.vote_average_label = customtkinter.CTkLabel(master=self.details_text_frame, text="Vote Average: ", wraplength=175)
         self.vote_average_label.grid(row=3, column=0, sticky="w")
-        self.popularity_label = customtkinter.CTkLabel(master=self.details_text_frame, text="Popularity: ")
+        self.popularity_label = customtkinter.CTkLabel(master=self.details_text_frame, text="Popularity: ", wraplength=175)
         self.popularity_label.grid(row=4, column=0, sticky="w")
-        self.runtime_label = customtkinter.CTkLabel(master=self.details_text_frame, text="Runtime: ")
+        self.runtime_label = customtkinter.CTkLabel(master=self.details_text_frame, text="Runtime: ", wraplength=175)
         self.runtime_label.grid(row=5, column=0, sticky="w")
-        self.genres_label = customtkinter.CTkLabel(master=self.details_text_frame, text="Genres: ")
+        self.genres_label = customtkinter.CTkLabel(master=self.details_text_frame, text="Genres: ", wraplength=175)
         self.genres_label.grid(row=6, column=0, sticky="w")
 
         # Overview and other labels below the poster
-        self.overview_label = customtkinter.CTkLabel(master=self.movie_details_frame, text="Overview: ", wraplength=400)
+        self.overview_label = customtkinter.CTkLabel(master=self.movie_details_frame, text="Overview: ", wraplength=420)
         self.overview_label.grid(row=1, column=0, columnspan=2, sticky="w", padx=10, pady=10)
         self.production_companies_label = customtkinter.CTkLabel(master=self.movie_details_frame, text="Production Companies: ", wraplength=400)
         self.production_companies_label.grid(row=2, column=0, columnspan=2, sticky="w", padx=10, pady=10)
         self.languages_label = customtkinter.CTkLabel(master=self.movie_details_frame, text="Languages: ")
         self.languages_label.grid(row=3, column=0, columnspan=2, sticky="w", padx=10, pady=10)
-        self.keywords_label = customtkinter.CTkLabel(master=self.movie_details_frame, text="Keywords: ", wraplength=400)
+        self.keywords_label = customtkinter.CTkLabel(master=self.movie_details_frame, text="Keywords: ", wraplength=420)
         self.keywords_label.grid(row=4, column=0, columnspan=2, sticky="w", padx=10, pady=10)
 
         # Recommended movies frames
@@ -123,6 +128,10 @@ class MovieGUI(customtkinter.CTk):
                 "vote_average": vote_average_label,
                 "overview": overview_label
             })
+    def open_book_search(self):
+        book_search = BookGUI(self)
+        book_search.attributes('-topmost', True)
+        book_search.after_idle(lambda: book_search.attributes('-topmost', False))
 
     def on_poster_click(self):
         print(f"Empty poster clicked!")
